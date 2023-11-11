@@ -5,6 +5,8 @@ cd $PROJECT_BASE_PATH
 
 GO_FILES_STAGED=$(git diff --name-only --cached | grep .go | wc -l)
 
+echo "[pre-commit] GO_FILES_STAGED=$GO_FILES_STAGED"
+
 if [ ! -z "$GO_FILES_STAGED" ] && [ "$GO_FILES_STAGED" != "0" ]; then
     GOLINT_BIN=$(which golangci-lint)
 
