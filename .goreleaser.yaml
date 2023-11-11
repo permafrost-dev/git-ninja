@@ -16,7 +16,7 @@ archives:
 
 builds:
   - main: './main.go'
-    binary: '{{project.name}}'
+    binary: 'git-ninja'
     mod_timestamp: '{{ .CommitTimestamp }}'
     flags:
       - -trimpath
@@ -29,13 +29,13 @@ builds:
 
 brews:
   -
-    name: '{{project.name}}'
-    homepage: 'https://github.com/{{project.vendor.github}}/{{project.name}}'
-    description: '{{project.description}}'
+    name: 'git-ninja'
+    homepage: 'https://github.com/permafrost-dev/git-ninja'
+    description: 'Git alias commands'
     license: "MIT"
     tap:
-      owner: '{{project.vendor.github}}'
-      name: homebrew-{{project.name}}
+      owner: 'permafrost-dev'
+      name: homebrew-git-ninja
       branch: main
 
 checksum:

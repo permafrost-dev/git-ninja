@@ -10,10 +10,10 @@ if [ ! -z "$GO_FILES_STAGED" ] && [ "$GO_FILES_STAGED" != "0" ]; then
 
     if [ ! -z "$GOLINT_BIN" ]; then
         LAST_COMMIT=$(git rev-parse HEAD)
-        SRC_PATHS=$(find . -name "*.go" -printf '%h/**\n' | egrep -v  '(\./\..+|tools|build|dist)')
+        SRC_PATHS=$(find . -name "*.go" -printf '%h/**\n' | egrep -v  '(\./\..+|tools|build|dist)') | tr '\n' ' '
 
         if [ -z "$SRC_PATHS" ]; then
-            SRC_PATHS="./**"
+            SRC_PATHS="./app ./cmd"
         fi
 
         echo "[pre-commit] $GOLINT_BIN run -c ./.golangci.yaml --new-from-rev $LAST_COMMIT $SRC_PATHS"
