@@ -16,7 +16,7 @@ archives:
 
 builds:
   - main: './main.go'
-    binary: '{{project.name}}'
+    binary: 'gn'
     mod_timestamp: '{{ .CommitTimestamp }}'
     flags:
       - -trimpath
@@ -26,17 +26,6 @@ builds:
       - linux_amd64
       - darwin_arm64
       - darwin_amd64
-
-brews:
-  -
-    name: '{{project.name}}'
-    homepage: 'https://github.com/{{project.vendor.github}}/{{project.name}}'
-    description: '{{project.description}}'
-    license: "MIT"
-    tap:
-      owner: '{{project.vendor.github}}'
-      name: homebrew-{{project.name}}
-      branch: main
 
 checksum:
   name_template: "checksums.txt"

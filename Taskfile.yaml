@@ -15,20 +15,20 @@ tasks:
     deps:
       - task: update-version-file
     cmds:
-      - task: build-{{project.name}}
+      - task: build-git-ninja
 
   clean:
     desc: Cleans up build artifacts
     preconditions:
       - test -d ./dist
-      - test -f ./dist/{{project.name}}
+      - test -f ./dist/git-ninja
     cmds:
-      - rm -f ./dist/{{project.name}}
+      - rm -f ./dist/git-ninja
 
   lint:
     cmds:
       - task: lint-dotenv
-      - task: lint-{{project.name}}
+      - task: lint-git-ninja
 
   update-version-file:
     vars:
@@ -48,7 +48,7 @@ tasks:
     cmds:
       - dotenv-linter {{.DOTENV_FILES}}
 
-  lint-{{project.name}}:
+  lint-git-ninja:
     internal: true
     vars:
       GO_SRC_DIRS:
@@ -59,8 +59,8 @@ tasks:
     cmds:
       - golangci-lint run {{.GO_SRC_DIRS}}
 
-  build-{{project.name}}:
-    desc: Builds {{project.name}} binary
+  build-git-ninja:
+    desc: Builds git-ninja binary
     vars:
       GIT_COMMIT:
         sh: git log -n 1 --format=%h
@@ -70,10 +70,10 @@ tasks:
       - './internal/**/*.go'
       - './main.go'
     generates:
-      - ./dist/{{project.name}}
+      - ./dist/git-ninja
     cmds:
       - mkdir -p ./dist
-      - go build -trimpath -ldflags="-s -w -X main.Version={{.VERSION}}-{{.GIT_COMMIT}}" -o dist/{{project.name}} .
+      - go build -trimpath -ldflags="-s -w -X main.Version={{.VERSION}}-{{.GIT_COMMIT}}" -o dist/git-ninja .
 
   release:
     desc: Creates a new snapshot release
