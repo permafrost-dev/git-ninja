@@ -16,7 +16,7 @@ archives:
 
 builds:
   - main: './main.go'
-    binary: 'git-ninja'
+    binary: 'gn'
     mod_timestamp: '{{ .CommitTimestamp }}'
     flags:
       - -trimpath
@@ -26,17 +26,6 @@ builds:
       - linux_amd64
       - darwin_arm64
       - darwin_amd64
-
-brews:
-  -
-    name: 'git-ninja'
-    homepage: 'https://github.com/permafrost-dev/git-ninja'
-    description: 'Git alias commands'
-    license: "MIT"
-    tap:
-      owner: 'permafrost-dev'
-      name: homebrew-git-ninja
-      branch: main
 
 checksum:
   name_template: "checksums.txt"
