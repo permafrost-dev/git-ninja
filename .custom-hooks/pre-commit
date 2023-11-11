@@ -3,7 +3,7 @@
 PROJECT_BASE_PATH=$(git rev-parse --show-toplevel)
 cd $PROJECT_BASE_PATH
 
-GO_FILES_STAGED=$(git diff --name-only --cached | grep .go | wc -l)
+GO_FILES_STAGED=$(git diff --name-only --cached | egrep '\.go$' | wc -l)
 
 echo "[pre-commit] GO_FILES_STAGED=$GO_FILES_STAGED"
 
@@ -12,7 +12,7 @@ if [ ! -z "$GO_FILES_STAGED" ] && [ "$GO_FILES_STAGED" != "0" ]; then
 
     if [ ! -z "$GOLINT_BIN" ]; then
         LAST_COMMIT=$(git rev-parse HEAD)
-        SRC_PATHS=$(find . -name "*.go" -printf '%h/**\n' | egrep -v  '(\./\..+|tools|build|dist)') | tr '\n' ' '
+        SRC_PATHS=$(find . -name "*.go" -printf '%h/**\n' | egrep -v '(\./\..+|tools|build|dist)') | tr '\n' ' '
 
         if [ -z "$SRC_PATHS" ]; then
             SRC_PATHS="./app ./cmd"
