@@ -14,4 +14,4 @@ jobs:
     - name: Test
       run: go test -v ./...
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v2
