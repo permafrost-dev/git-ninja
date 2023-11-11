@@ -1,0 +1,96 @@
+# This file can be run with the `task` utility: https://taskfile.dev/
+version: '3'
+
+
+
+tasks:
+
+  mod:
+    desc: Downloads and tidy Go modules
+    cmds:
+      - go mod download
+      - go mod tidy
+
+  build:
+    deps:
+      - task: update-version-file
+    cmds:
+      - task: build-{{project.name}}
+
+  clean:
+    desc: Cleans up build artifacts
+    preconditions:
+      - test -d ./dist
+      - test -f ./dist/{{project.name}}
+    cmds:
+      - rm -f ./dist/{{project.name}}
+
+  lint:
+    cmds:
+      - task: lint-dotenv
+      - task: lint-{{project.name}}
+
+  update-version-file:
+    vars:
+      VERSION:
+        sh: go run tools/build-version.go
+    cmds:
+      - printf "package main\n\nvar Version = \"{{.VERSION}}\"" > ./app/version.go
+
+  lint-dotenv:
+    internal: true
+    vars:
+      DOTENV_FILES:
+        sh: find . -name ".env*" -print | sort -u | egrep -v '^./dist.*$' | tr '\n' ' '
+    preconditions:
+      - which dotenv-linter
+      - test -n "$(find -name '.env*')"
+    cmds:
+      - dotenv-linter {{.DOTENV_FILES}}
+
+  lint-{{project.name}}:
+    internal: true
+    vars:
+      GO_SRC_DIRS:
+        sh:  find . -name "*.go" -printf '%h\n' | awk -F/ '{ print "./" $2 }' | sort -u | grep -v './tools' | tr '\n' ' '
+    preconditions:
+      - test -f ./.golangci.yml
+      - which golangci-lint
+    cmds:
+      - golangci-lint run {{.GO_SRC_DIRS}}
+
+  build-{{project.name}}:
+    desc: Builds {{project.name}} binary
+    vars:
+      GIT_COMMIT:
+        sh: git log -n 1 --format=%h
+    sources:
+      - './app/**/*.go'
+      - './cmd/**/*.go'
+      - './internal/**/*.go'
+      - './main.go'
+    generates:
+      - ./dist/{{project.name}}
+    cmds:
+      - mkdir -p ./dist
+      - go build -trimpath -ldflags="-s -w -X main.Version={{.VERSION}}-{{.GIT_COMMIT}}" -o dist/{{project.name}} .
+
+  release:
+    desc: Creates a new snapshot release
+    deps:
+      - task: mod
+      - task: lint
+      - task: update-version-file
+    preconditions:
+      - test -f ./.goreleaser.yaml
+      - which goreleaser
+    cmds:
+      - goreleaser build -f ./.goreleaser.yaml --clean --snapshot
+
+  autobuild:
+    interactive: true
+    desc: Watches for changes, automatically rebuilds the project & displays a minimal system notification
+    preconditions:
+      - which watchexec
+    cmds:
+      - watchexec --exts go --fs-events create,modify,remove -N --debounce 500 -w ./app -w ./cmd -w ./internal -- task build -f
