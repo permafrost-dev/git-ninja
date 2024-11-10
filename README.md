@@ -14,7 +14,8 @@ git-ninja [command] [flags] [args]
 
 - `branch:current` - Work with the current branch or return the current branch name
 - `branch:exists` - Check if the given branch name exists
-- `branch:recent` - Show recently checked out branch names
+- `branch:recent` - Show recently checked out branches
+- `branch:freq` - Show frequently checked out branches
 - `branch:last` - Show the last checked out branch name
 - `branch:search` - Search branch names for matching substrings or a regex pattern
 
