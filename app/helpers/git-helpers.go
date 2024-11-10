@@ -91,3 +91,26 @@ func BranchExists(name string) (bool, error) {
 
 	return false, nil
 }
+
+// getAvailableBranches fetches and returns a map of all available branches in the repository
+func GetAvailableBranchesMap() (map[string]bool, error) {
+	cmd := exec.Command("git", "branch", "--list")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	branches := strings.Split(out.String(), "\n")
+	branchMap := make(map[string]bool)
+
+	for _, branch := range branches {
+		branch = strings.TrimSpace(strings.TrimPrefix(branch, "*"))
+		if branch != "" {
+			branchMap[branch] = true
+		}
+	}
+
+	return branchMap, nil
+}

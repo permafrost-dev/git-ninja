@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/permafrost-dev/git-ninja/app/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +46,7 @@ func init() {
 		Short: "Show recently checked out branch names",
 		Run: func(c *cobra.Command, args []string) {
 
-			availableBranches, err := getAvailableBranches()
+			availableBranches, err := helpers.GetAvailableBranchesMap()
 			if err != nil {
 				fmt.Println("Error fetching branches:", err)
 				return

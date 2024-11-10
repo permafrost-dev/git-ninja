@@ -9,30 +9,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/permafrost-dev/git-ninja/app/gitutils"
+	"github.com/permafrost-dev/git-ninja/app/helpers"
+	"github.com/permafrost-dev/git-ninja/app/utils"
 	"github.com/spf13/cobra"
 )
-
-// getRelativeTime takes a time.Time and returns a human-readable relative time string
-func getRelativeTime(t time.Time) string {
-	duration := time.Since(t)
-
-	switch {
-	case duration.Minutes() < 1:
-		return "just now"
-	case duration.Minutes() < 100:
-		return fmt.Sprintf("%.0f min ago", duration.Minutes())
-	case duration.Hours() < 1:
-		return fmt.Sprintf("%.0f min ago", duration.Minutes())
-	case duration.Hours() < 36:
-		return fmt.Sprintf("%.0f hours ago", duration.Hours())
-	case duration.Hours() < 24*7:
-		return fmt.Sprintf("%.0f days ago", duration.Hours()/24)
-	case duration.Hours() < 24*30:
-		return fmt.Sprintf("%.0f weeks ago", duration.Hours()/(24*7))
-	default:
-		return fmt.Sprintf("%.0f months ago", duration.Hours()/(24*30))
-	}
-}
 
 func init() {
 	rootCmd.AddCommand(&cobra.Command{
@@ -40,7 +21,7 @@ func init() {
 		Short: "Show recently checked out branch names",
 		Run: func(c *cobra.Command, args []string) {
 
-			availableBranches, err := getAvailableBranches()
+			availableBranches, err := helpers.GetAvailableBranchesMap()
 			if err != nil {
 				fmt.Println("Error fetching branches:", err)
 				return
@@ -62,13 +43,7 @@ func init() {
 			// Prepare regular expressions to match 'checkout:' and extract the branch name and ISO date
 			checkoutRegexp := regexp.MustCompile(`^checkout: moving from [^ ]+ to ([^ ]+)~(.*)$`)
 
-			// Map to keep track of branch frequencies and recency
-			type branchInfo struct {
-				branch string
-				count  int
-				latest time.Time
-			}
-			branchData := make(map[string]branchInfo)
+			branchData := make(map[string]gitutils.BranchInfo)
 
 			// Time threshold for very recent checkouts (last 2 days)
 			recentThreshold := time.Now().AddDate(0, 0, -3)
@@ -87,11 +62,11 @@ func init() {
 
 					if branchExists(branch, availableBranches) {
 						info := branchData[branch]
-						info.count++
+						info.CheckoutCount++
 
 						// Update latest checkout date
-						if info.latest.IsZero() || checkoutDate.After(info.latest) {
-							info.latest = checkoutDate
+						if info.LastCheckout.IsZero() || checkoutDate.After(info.LastCheckout) {
+							info.LastCheckout = checkoutDate
 						}
 
 						branchData[branch] = info
@@ -100,26 +75,26 @@ func init() {
 			}
 
 			// Separate branches into very recent and older groups
-			var veryRecentBranches, otherBranches []branchInfo
+			var veryRecentBranches, otherBranches []gitutils.BranchInfo
 			for branch, info := range branchData {
-				if info.latest.After(recentThreshold) {
-					veryRecentBranches = append(veryRecentBranches, branchInfo{branch, info.count, info.latest})
+				if info.LastCheckout.After(recentThreshold) {
+					veryRecentBranches = append(veryRecentBranches, gitutils.BranchInfo{Name: branch, CheckoutCount: info.CheckoutCount, LastCheckout: info.LastCheckout})
 				} else {
-					otherBranches = append(otherBranches, branchInfo{branch, info.count, info.latest})
+					otherBranches = append(otherBranches, gitutils.BranchInfo{Name: branch, CheckoutCount: info.CheckoutCount, LastCheckout: info.LastCheckout})
 				}
 			}
 
 			// Sort very recent branches by recency (latest first)
 			sort.Slice(veryRecentBranches, func(i, j int) bool {
-				return veryRecentBranches[i].latest.After(veryRecentBranches[j].latest)
+				return veryRecentBranches[i].LastCheckout.After(veryRecentBranches[j].LastCheckout)
 			})
 
 			// Sort other branches by frequency and then by recency
 			sort.Slice(otherBranches, func(i, j int) bool {
-				if otherBranches[i].count == otherBranches[j].count {
-					return otherBranches[i].latest.After(otherBranches[j].latest)
+				if otherBranches[i].CheckoutCount == otherBranches[j].CheckoutCount {
+					return otherBranches[i].LastCheckout.After(otherBranches[j].LastCheckout)
 				}
-				return otherBranches[i].count > otherBranches[j].count
+				return otherBranches[i].CheckoutCount > otherBranches[j].CheckoutCount
 			})
 
 			// Combine the very recent and other branches, prioritizing very recent ones
@@ -128,8 +103,8 @@ func init() {
 			// Display the sorted branches, ensuring at least 20 are shown
 			count := 0
 			for _, branch := range displayedBranches {
-				infoStr := fmt.Sprintf("%2d checkouts, %-15s", branch.count, getRelativeTime(branch.latest))
-				fmt.Printf("  \033[33m%28s \033[37;1m %s\033[0m\n", infoStr, branch.branch)
+				infoStr := fmt.Sprintf("%2d checkouts, %-15s", branch.CheckoutCount, utils.GetRelativeTime(branch.LastCheckout))
+				fmt.Printf("  \033[33m%28s \033[37;1m %s\033[0m\n", infoStr, branch.Name)
 				count++
 				if count >= 20 {
 					break

@@ -9,16 +9,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/permafrost-dev/git-ninja/app/gitutils"
+	"github.com/permafrost-dev/git-ninja/app/helpers"
+	"github.com/permafrost-dev/git-ninja/app/utils"
 	"github.com/spf13/cobra"
 )
 
-type branchInfo struct {
-	branch string
-	count  int
-	latest time.Time
-}
-
-func getAllBranchesWithAges(availableBranches map[string]bool) ([]branchInfo, error) {
+func getAllBranchDataSortedByAge(availableBranches map[string]bool) ([]gitutils.BranchInfo, error) {
 	cmd := exec.Command("git", "reflog", "show", "--pretty=format:%gs~%ci")
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -35,8 +32,8 @@ func getAllBranchesWithAges(availableBranches map[string]bool) ([]branchInfo, er
 	// Prepare regular expressions to match 'checkout:' and extract the branch name and ISO date
 	checkoutRegexp := regexp.MustCompile(`^checkout: moving from [^ ]+ to ([^ ]+)~(.*)$`)
 
-	branchData := make(map[string]branchInfo)
-	branchDataArray := make([]branchInfo, 0)
+	branchData := make(map[string]gitutils.BranchInfo)
+	branchDataArray := make([]gitutils.BranchInfo, 0)
 
 	// Iterate through each line and apply the regex filters
 	for _, line := range lines {
@@ -52,11 +49,11 @@ func getAllBranchesWithAges(availableBranches map[string]bool) ([]branchInfo, er
 
 			if branchExists(branch, availableBranches) {
 				info := branchData[branch]
-				info.count++
+				info.CheckoutCount++
 
 				// Update latest checkout date
-				if info.latest.IsZero() || checkoutDate.After(info.latest) {
-					info.latest = checkoutDate
+				if info.LastCheckout.IsZero() || checkoutDate.After(info.LastCheckout) {
+					info.LastCheckout = checkoutDate
 				}
 
 				branchData[branch] = info
@@ -65,12 +62,12 @@ func getAllBranchesWithAges(availableBranches map[string]bool) ([]branchInfo, er
 	}
 
 	for branch, info := range branchData {
-		branchDataArray = append(branchDataArray, branchInfo{branch: branch, count: info.count, latest: info.latest})
+		branchDataArray = append(branchDataArray, gitutils.BranchInfo{Name: branch, CheckoutCount: info.CheckoutCount, LastCheckout: info.LastCheckout})
 	}
 
 	for branch := range availableBranches {
 		if _, ok := branchData[branch]; !ok {
-			branchDataArray = append(branchDataArray, branchInfo{branch: branch, count: 0, latest: time.Time{}})
+			branchDataArray = append(branchDataArray, gitutils.BranchInfo{Name: branch, CheckoutCount: 0, LastCheckout: time.Time{}})
 		}
 	}
 
@@ -88,16 +85,16 @@ var searchBranchesCmd = &cobra.Command{
 			fmt.Println("Error: No search string provided.")
 			return
 		}
-		searchFor := args[0]
 
-		availableBranches, err := getAvailableBranches()
+		searchFor := args[0]
+		availableBranches, err := helpers.GetAvailableBranchesMap()
 
 		if err != nil {
 			fmt.Printf("Error retrieving branches: %v\n", err)
 			return
 		}
 
-		availableBranchAgesSorted, err := getAllBranchesWithAges(availableBranches)
+		availableBranchAgesSorted, err := getAllBranchDataSortedByAge(availableBranches)
 
 		if err != nil {
 			fmt.Printf("Error retrieving branch ages: %v\n", err)
@@ -105,14 +102,14 @@ var searchBranchesCmd = &cobra.Command{
 		}
 
 		// Search for branches that contain the search string
-		var matches []branchInfo
+		var matches []gitutils.BranchInfo
 		for _, branchData := range availableBranchAgesSorted {
-			if !flagRegex && strings.Contains(branchData.branch, searchFor) {
+			if !flagRegex && strings.Contains(branchData.Name, searchFor) {
 				matches = append(matches, branchData)
 			}
 
 			if flagRegex {
-				if matched, _ := regexp.MatchString(searchFor, branchData.branch); matched {
+				if matched, _ := regexp.MatchString(searchFor, branchData.Name); matched {
 					matches = append(matches, branchData)
 				}
 			}
@@ -125,17 +122,17 @@ var searchBranchesCmd = &cobra.Command{
 		}
 
 		sort.Slice(matches, func(i, j int) bool {
-			return matches[i].latest.After(matches[j].latest)
+			return matches[i].LastCheckout.After(matches[j].LastCheckout)
 		})
 
 		for _, branch := range matches {
 			var branchAge string = "never"
 
-			if !branch.latest.IsZero() {
-				branchAge = getRelativeTime(branch.latest)
+			if !branch.LastCheckout.IsZero() {
+				branchAge = utils.GetRelativeTime(branch.LastCheckout)
 			}
 
-			fmt.Printf("  \033[33m%-16s \033[37;1m %s\033[0m\n", branchAge, branch.branch)
+			fmt.Printf("  \033[33m%-16s \033[37;1m %s\033[0m\n", branchAge, branch.Name)
 		}
 	},
 }
