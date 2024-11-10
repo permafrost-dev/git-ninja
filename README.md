@@ -2,18 +2,31 @@
 
 ---
 
+A command-line tool that provides advanced git commands for developers.
 
+## Usage
 
-Git alias commands
+```bash
+git-ninja [command] [flags] [args]
+```
 
-## Setup
+### Available Commands
+
+- `branch:current` - Work with the current branch or return the current branch name
+- `branch:exists` - Check if the given branch name exists
+- `branch:recent` - Show recently checked out branch names
+- `branch:last` - Show the last checked out branch name
+- `branch:search` - Search branch names for matching substrings or a regex pattern
+
+## Development Setup
 
 ```bash
 go mod tidy
 ```
 
+### Building the project
 
-## Building the project
+`git-ninja` uses the [task](https://task.dev) build tool. To build the project, run the following command:
 
 ```bash
 task build
