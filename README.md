@@ -2,7 +2,7 @@
 
 ---
 
-A command-line tool that provides advanced git commands for developers.
+A powerful command-line tool designed to enhance your Git workflow with advanced commands tailored for developers. It simplifies complex Git operations, making branch management and navigation more efficient and intuitive.
 
 ## Usage
 
@@ -18,6 +18,32 @@ git-ninja [command] [flags] [args]
 - `branch:freq` - Show frequently checked out branches
 - `branch:last` - Show the last checked out branch name
 - `branch:search` - Search branch names for matching substrings or a regex pattern
+
+### Examples
+
+Check if a branch exists:
+
+```bash
+git-ninja branch:exists feature/new-ui
+```
+
+List recently checked out branches:
+
+```bash
+git-ninja branch:recent
+```
+
+Search for branches containing "fix":
+
+```bash
+git-ninja branch:search fix
+```
+
+Search for branches matching a regex pattern (e.g., all branches starting with `GN-12`):
+
+```bash
+git-ninja branch:search -r "GN-12.+"
+```
 
 ## Development Setup
 
