@@ -27,7 +27,7 @@ go mod tidy
 
 ### Building the project
 
-`git-ninja` uses the [task](https://task.dev) build tool. To build the project, run the following command:
+`git-ninja` uses the [task](https://github.com/go-task/task) build tool. To build the project, run the following command:
 
 ```bash
 task build
