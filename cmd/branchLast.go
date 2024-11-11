@@ -9,14 +9,6 @@ import (
 
 var flagCheckout bool = false
 
-func switchToBranch(branchName string) {
-	err := helpers.RunCommandOnStdout("git", "checkout", branchName)
-	if err != nil {
-		fmt.Println("Error switching branches:", err)
-		return
-	}
-}
-
 var branchLastCmd = &cobra.Command{
 	Use:   "branch:last",
 	Short: "Work with the last checked out branch",
@@ -24,7 +16,8 @@ var branchLastCmd = &cobra.Command{
 		branchName, _ := helpers.GetLastCheckedoutBranchName()
 
 		if flagCheckout {
-			switchToBranch(branchName)
+            // git prints success and error messages automatically, so we don't need to do it here
+			helpers.RunCommandOnStdout("git", "checkout", branchName)
 			return
 		}
 
