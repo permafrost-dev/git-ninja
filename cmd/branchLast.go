@@ -15,8 +15,6 @@ func switchToBranch(branchName string) {
 		fmt.Println("Error switching branches:", err)
 		return
 	}
-
-	fmt.Printf("Switched to branch '%s'\n", branchName)
 }
 
 var branchLastCmd = &cobra.Command{
