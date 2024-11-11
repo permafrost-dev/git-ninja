@@ -16,7 +16,7 @@ git-ninja [command] [flags] [args]
 - `branch:exists` - Check if the given branch name exists
 - `branch:recent` - Show recently checked out branches
 - `branch:freq` - Show frequently checked out branches
-- `branch:last` - Show the last checked out branch name
+- `branch:last` - Work with the last checked out branch
 - `branch:search` - Search branch names for matching substrings or a regex pattern
 
 ### Examples
@@ -31,6 +31,16 @@ List recently checked out branches:
 
 ```bash
 git-ninja branch:recent
+```
+
+Work with the last checked out branch:
+
+```bash
+# show the last checked out branch name
+git-ninja branch:last
+
+# Switch to the last checked out branch (git checkout)
+git-ninja branch:last --switch
 ```
 
 Search for branches containing "fix":
