@@ -62,7 +62,7 @@ Search for branches matching a regex pattern (e.g., all branches starting with `
 git-ninja branch:search -r "GN-12.+"
 ```
 
-### Git Aliases
+### Git Aliases - Configuration
 
 Add the following aliases to your `.gitconfig` file to use `git-ninja` commands as Git aliases:
 
@@ -80,7 +80,7 @@ Add the following aliases to your `.gitconfig` file to use `git-ninja` commands 
     co-last = "!f() { git-ninja branch:last --checkout; }; f"
 ```
 
-#### Examples
+### Git Aliases - Examples
 
 List recently checked out branches:
 
