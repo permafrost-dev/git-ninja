@@ -16,7 +16,7 @@ var branchLastCmd = &cobra.Command{
 		branchName, _ := helpers.GetLastCheckedoutBranchName()
 
 		if flagCheckout {
-            // git prints success and error messages automatically, so we don't need to do it here
+			// git prints success and error messages automatically, so we don't need to do it here
 			helpers.RunCommandOnStdout("git", "checkout", branchName)
 			return
 		}
@@ -28,5 +28,5 @@ var branchLastCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(branchLastCmd)
 
-	branchLastCmd.Flags().BoolVarP(&flagCheckout, "switch", "s", false, "Switch to the last checked out branch")
+	branchLastCmd.Flags().BoolVarP(&flagCheckout, "checkout", "c", false, "Switch to (checkout) the last checked out branch")
 }

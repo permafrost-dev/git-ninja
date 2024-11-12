@@ -41,7 +41,7 @@ Work with the last checked out branch:
 git-ninja branch:last
 
 # Switch to the last checked out branch (git checkout)
-git-ninja branch:last --switch
+git-ninja branch:last --checkout
 ```
 
 Search for branches containing "fix":
