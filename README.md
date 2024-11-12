@@ -34,14 +34,20 @@ List recently checked out branches:
 git-ninja branch:recent
 ```
 
-Work with the last checked out branch:
+Show the last checked out branch name:
 
 ```bash
-# show the last checked out branch name
 git-ninja branch:last
+```
 
-# Switch to the last checked out branch (git checkout)
-git-ninja branch:last --checkout
+Switch to the last checked out branch:
+
+```bash
+git checkout main
+git checkout feature/my-feature
+
+# switch from feature/my-feature to main:
+git-ninja branch:last --checkout 
 ```
 
 Search for branches containing "fix":
@@ -54,6 +60,49 @@ Search for branches matching a regex pattern (e.g., all branches starting with `
 
 ```bash
 git-ninja branch:search -r "GN-12.+"
+```
+
+### Git Aliases
+
+Add the following aliases to your `.gitconfig` file to use `git-ninja` commands as Git aliases:
+
+```ini
+[alias]
+    # list recently checked out branches
+    lrb = "!f() { git-ninja branch:recent; }; f"
+    # list frequently checked out branches
+    lfb = "!f() { git-ninja branch:freq; }; f"
+    # search branches
+    sb = "!f() { git-ninja branch:search $@; }; f"
+    # push current branch
+    pcb = "!f() { git-ninja branch:current --push; }; f"
+    # switch to the last checked out branch
+    co-last = "!f() { git-ninja branch:last --checkout; }; f"
+```
+
+#### Examples
+
+List recently checked out branches:
+
+```bash
+git lrb
+```
+
+Search branch names:
+
+```bash
+# find branches containing "fix"
+git sb fix
+# find branches matching a regex pattern
+git sb -r "fix.+"
+```
+
+Switch to the last checked out branch:
+
+```bash
+git checkout main
+git checkout feature/my-feature
+git co-last # switch from feature/my-feature to main
 ```
 
 ## Development Setup
