@@ -2,7 +2,8 @@
 
 ---
 
-A powerful command-line tool designed to enhance your Git workflow with advanced commands tailored for developers. It simplifies complex Git operations, making branch management and navigation more efficient and intuitive.
+A powerful command-line tool designed to enhance your Git workflow with advanced commands tailored for developers. 
+It simplifies complex Git operations, making branch management and navigation more efficient and intuitive.
 
 ## Usage
 
