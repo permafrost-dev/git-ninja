@@ -23,12 +23,12 @@ func GetRelativeTime(t time.Time) string {
 	switch {
 	case duration.Minutes() < 1:
 		return "just now"
-	case duration.Minutes() < 100:
+	case duration.Minutes() < 120:
 		return fmt.Sprintf("%.0f min ago", duration.Minutes())
 	case duration.Hours() < 1:
 		return fmt.Sprintf("%.0f min ago", duration.Minutes())
 	case duration.Hours() < 36:
-		return fmt.Sprintf("%.0f hours ago", duration.Hours())
+		return fmt.Sprintf("%.0f hours ago", duration.Minutes()/60)
 	case duration.Hours() < 24*7:
 		return fmt.Sprintf("%.0f days ago", duration.Hours()/24)
 	case duration.Hours() < 24*30:
