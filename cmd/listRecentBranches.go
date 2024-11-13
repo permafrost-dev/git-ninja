@@ -27,7 +27,7 @@ var listRecentBranchesCmd = &cobra.Command{
 		count := 0
 
 		for _, line := range lines {
-			info := git.GetBranchInfoFromReflogLine(lineRegex, line)
+			info := git.GetBranchInfoFromReflogLine(lineRegex, line, 4)
 			if info == nil {
 				continue
 			}

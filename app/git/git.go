@@ -13,7 +13,7 @@ type BranchInfo struct {
 	Name            string
 	CheckoutCount   int
 	CheckoutHistory []*BranchCheckoutInfo
-	CheckedOutLast  *time.Time
+	CheckedOutLast  time.Time
 }
 
 type BranchCheckoutInfo struct {
@@ -22,10 +22,10 @@ type BranchCheckoutInfo struct {
 	Timestamp    time.Time
 }
 
-func GetBranchInfoFromReflogLine(pattern *regexp.Regexp, reflogLine string) *BranchCheckoutInfo {
+func GetBranchInfoFromReflogLine(pattern *regexp.Regexp, reflogLine string, minMatchCount int) *BranchCheckoutInfo {
 	matches := pattern.FindStringSubmatch(reflogLine)
 
-	if matches == nil || len(matches) < 4 {
+	if matches == nil || len(matches) < minMatchCount {
 		return nil
 	}
 
@@ -43,4 +43,14 @@ func GetGitReflogLines(prettyFmt string) ([]string, error) {
 	}
 
 	return strings.Split(output, "\n"), nil
+}
+
+func SliceContainsBranchCommitData(slice []*BranchCheckoutInfo, info *BranchCheckoutInfo) bool {
+	for _, item := range slice {
+		if item.BranchName == info.BranchName {
+			return true
+		}
+	}
+
+	return false
 }

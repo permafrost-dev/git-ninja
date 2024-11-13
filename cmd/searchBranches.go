@@ -1,80 +1,38 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
-	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
-	"time"
 
-	"github.com/permafrost-dev/git-ninja/app/gitutils"
+	"github.com/permafrost-dev/git-ninja/app/git"
 	"github.com/permafrost-dev/git-ninja/app/helpers"
 	"github.com/permafrost-dev/git-ninja/app/utils"
 	"github.com/spf13/cobra"
 )
 
-func getAllBranchDataSortedByAge(availableBranches map[string]bool) ([]gitutils.BranchInfo, error) {
-	cmd := exec.Command("git", "reflog", "show", "--pretty=format:%gs~%ci")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println("Error executing git command:", err)
-		return nil, err
-	}
+func getAllBranchDataSortedByAge(lines []string, availableBranches map[string]bool) []*git.BranchCheckoutInfo {
+	var lineRegex = regexp.MustCompile(`([0-9]+) ~ (checkout):.+ ([^~]+) ~ HEAD@{(.*)}`)
+	result := make([]*git.BranchCheckoutInfo, 0)
 
-	// Convert command output to string and split by new lines
-	output := out.String()
-	lines := strings.Split(output, "\n")
-
-	// Prepare regular expressions to match 'checkout:' and extract the branch name and ISO date
-	checkoutRegexp := regexp.MustCompile(`^checkout: moving from [^ ]+ to ([^ ]+)~(.*)$`)
-
-	branchData := make(map[string]gitutils.BranchInfo)
-	branchDataArray := make([]gitutils.BranchInfo, 0)
-
-	// Iterate through each line and apply the regex filters
 	for _, line := range lines {
-		if matches := checkoutRegexp.FindStringSubmatch(line); len(matches) == 3 {
-			branch := matches[1]
-			isoDate := strings.TrimSpace(matches[2])
+		info := git.GetBranchInfoFromReflogLine(lineRegex, line, 4)
 
-			checkoutDate, err := time.Parse("2006-01-02 15:04:05 -0700", isoDate)
-			if err != nil {
-				fmt.Println("Error parsing date:", err)
-				continue
-			}
-
-			if utils.MapEntryExists(branch, availableBranches) {
-				info := branchData[branch]
-				info.CheckoutCount++
-
-				// Update latest checkout date
-				if info.LastCheckout.IsZero() || checkoutDate.After(info.LastCheckout) {
-					info.LastCheckout = checkoutDate
-				}
-
-				branchData[branch] = info
-			}
+		if info != nil && utils.MapEntryExists(info.BranchName, availableBranches) && !git.SliceContainsBranchCommitData(result, info) {
+			result = append(result, info)
 		}
 	}
 
-	for branch, info := range branchData {
-		branchDataArray = append(branchDataArray, gitutils.BranchInfo{Name: branch, CheckoutCount: info.CheckoutCount, LastCheckout: info.LastCheckout})
-	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Timestamp.After(result[j].Timestamp)
+	})
 
-	for branch := range availableBranches {
-		if _, ok := branchData[branch]; !ok {
-			branchDataArray = append(branchDataArray, gitutils.BranchInfo{Name: branch, CheckoutCount: 0, LastCheckout: time.Time{}})
-		}
-	}
-
-	return branchDataArray, nil
+	return result
 }
 
 var flagRegex bool = false
+var flagCheckoutFirst bool = false
 
 var searchBranchesCmd = &cobra.Command{
 	Use:   "branch:search [--regex|-r] <substring-or-regex>",
@@ -87,52 +45,34 @@ var searchBranchesCmd = &cobra.Command{
 		}
 
 		searchFor := args[0]
-		availableBranches, err := helpers.GetAvailableBranchesMap()
+		lines, _ := git.GetGitReflogLines("%at ~ %gs ~ %gd")
+		existingBranches, _ := helpers.GetAvailableBranchesMap()
+		sortedBranches := getAllBranchDataSortedByAge(lines, existingBranches)
 
-		if err != nil {
-			fmt.Printf("Error retrieving branches: %v\n", err)
-			return
-		}
+		var matches []*git.BranchCheckoutInfo
 
-		availableBranchAgesSorted, err := getAllBranchDataSortedByAge(availableBranches)
-
-		if err != nil {
-			fmt.Printf("Error retrieving branch ages: %v\n", err)
-			return
-		}
-
-		// Search for branches that contain the search string
-		var matches []gitutils.BranchInfo
-		for _, branchData := range availableBranchAgesSorted {
-			if !flagRegex && strings.Contains(branchData.Name, searchFor) {
+		for _, branchData := range sortedBranches {
+			if !flagRegex && strings.Contains(branchData.BranchName, searchFor) {
 				matches = append(matches, branchData)
 			}
 
-			if flagRegex {
-				if matched, _ := regexp.MatchString(searchFor, branchData.Name); matched {
-					matches = append(matches, branchData)
-				}
+			if flagRegex && utils.StringMatchesRegexPattern(searchFor, branchData.BranchName) {
+				matches = append(matches, branchData)
 			}
 		}
 
-		// Print out the matching branch names
 		if len(matches) == 0 {
 			fmt.Println("No matching branches found.")
+		}
+
+		if len(matches) > 0 && flagCheckoutFirst {
+			fmt.Printf("  \033[33m%-16s \033[37;1m %s\033[0m\n", matches[0].RelativeTime, matches[0].BranchName)
+			helpers.RunCommandOnStdout("git", "checkout", matches[0].BranchName)
 			return
 		}
 
-		sort.Slice(matches, func(i, j int) bool {
-			return matches[i].LastCheckout.After(matches[j].LastCheckout)
-		})
-
 		for _, branch := range matches {
-			var branchAge string = "never"
-
-			if !branch.LastCheckout.IsZero() {
-				branchAge = utils.GetRelativeTime(branch.LastCheckout)
-			}
-
-			fmt.Printf("  \033[33m%-16s \033[37;1m %s\033[0m\n", branchAge, branch.Name)
+			fmt.Printf("  \033[33m%-16s \033[37;1m %s\033[0m\n", branch.RelativeTime, branch.BranchName)
 		}
 	},
 }
@@ -141,4 +81,5 @@ func init() {
 	rootCmd.AddCommand(searchBranchesCmd)
 
 	searchBranchesCmd.Flags().BoolVarP(&flagRegex, "regex", "r", false, "Search using a regular expression pattern")
+	searchBranchesCmd.Flags().BoolVarP(&flagCheckoutFirst, "checkout", "o", false, "Checkout the first matching branch")
 }
