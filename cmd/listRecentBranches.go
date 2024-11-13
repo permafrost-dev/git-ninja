@@ -33,27 +33,27 @@ var listRecentBranchesCmd = &cobra.Command{
 			}
 
 			// exclude branches that are not in the list of current branches, i.e. branches that have been deleted
-			if !utils.MapEntryExists(info.Name, existingBranches) {
+			if !utils.MapEntryExists(info.BranchName, existingBranches) {
 				continue
 			}
 
 			// is the branch name excluded by the exclude flag?
-			if utils.StringMatchesRegexPattern(flagFilterIgnore, info.Name) {
+			if utils.StringMatchesRegexPattern(flagFilterIgnore, info.BranchName) {
 				continue
 			}
 
 			// don't show the current branch
-			if strings.EqualFold(info.Name, currentBranch) {
+			if strings.EqualFold(info.BranchName, currentBranch) {
 				continue
 			}
 
 			// have we already seen this branch?
-			if seen[info.Name] {
+			if seen[info.BranchName] {
 				continue
 			}
 
-			seen[info.Name] = true
-			fmt.Printf("  \033[33m%-15s \033[37;1m %s\033[0m\n", info.CheckoutRelativeTime, info.Name)
+			seen[info.BranchName] = true
+			fmt.Printf("  \033[33m%-15s \033[37;1m %s\033[0m\n", info.RelativeTime, info.BranchName)
 
 			if count += 1; count >= flagCount {
 				break

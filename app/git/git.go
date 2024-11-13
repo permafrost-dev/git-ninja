@@ -10,22 +10,29 @@ import (
 )
 
 type BranchInfo struct {
-	Name                 string
-	CheckoutRelativeTime string
-	CheckoutTimestamp    time.Time
+	Name            string
+	CheckoutCount   int
+	CheckoutHistory []*BranchCheckoutInfo
+	CheckedOutLast  *time.Time
 }
 
-func GetBranchInfoFromReflogLine(pattern *regexp.Regexp, reflogLine string) *BranchInfo {
+type BranchCheckoutInfo struct {
+	BranchName   string
+	RelativeTime string
+	Timestamp    time.Time
+}
+
+func GetBranchInfoFromReflogLine(pattern *regexp.Regexp, reflogLine string) *BranchCheckoutInfo {
 	matches := pattern.FindStringSubmatch(reflogLine)
 
 	if matches == nil || len(matches) < 4 {
 		return nil
 	}
 
-	return &BranchInfo{
-		Name:                 strings.TrimSpace(matches[3]),
-		CheckoutRelativeTime: strings.TrimSpace(matches[4]),
-		CheckoutTimestamp:    utils.ParseTimestampIntoTime(matches[1]),
+	return &BranchCheckoutInfo{
+		BranchName:   strings.TrimSpace(matches[3]),
+		RelativeTime: strings.TrimSpace(matches[4]),
+		Timestamp:    utils.ParseTimestampIntoTime(matches[1]),
 	}
 }
 
