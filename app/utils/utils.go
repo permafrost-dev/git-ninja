@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"os/exec"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -36,4 +38,31 @@ func GetRelativeTime(t time.Time) string {
 	default:
 		return fmt.Sprintf("%.0f months ago", duration.Hours()/(24*30))
 	}
+}
+
+func ParseTimestampIntoTime(timestamp string) time.Time {
+	seconds, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		return time.Time{}
+	}
+
+	return time.Unix(seconds, 0)
+}
+
+func StringMatchesRegexPattern(pattern string, str string) bool {
+	if len(pattern) == 0 {
+		return false
+	}
+
+	if matched, _ := regexp.MatchString(pattern, str); matched {
+		return true
+	}
+
+	return false
+}
+
+// MapEntryExists checks if a key exists in a map
+func MapEntryExists(key string, mappedData map[string]bool) bool {
+	_, exists := mappedData[key]
+	return exists
 }

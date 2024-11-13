@@ -47,7 +47,7 @@ func getAllBranchDataSortedByAge(availableBranches map[string]bool) ([]gitutils.
 				continue
 			}
 
-			if branchExists(branch, availableBranches) {
+			if utils.MapEntryExists(branch, availableBranches) {
 				info := branchData[branch]
 				info.CheckoutCount++
 
