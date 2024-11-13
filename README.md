@@ -34,6 +34,12 @@ List recently checked out branches:
 git-ninja branch:recent
 ```
 
+List frequently checked out branches, limit to 5 results while excluding 'develop' and 'main' from the list:
+
+```bash
+git-ninja branch:recent -c 5 -e 'develop|main'
+```
+
 Show the last checked out branch name:
 
 ```bash
