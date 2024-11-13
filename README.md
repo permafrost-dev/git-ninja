@@ -68,6 +68,14 @@ Search for branches matching a regex pattern (e.g., all branches starting with `
 git-ninja branch:search -r "GN-12.+"
 ```
 
+Search for a substring in branch names, and check out the first result:
+
+```bash
+git checkout main
+git-ninja branch:search some-fix -o
+# our active branch is now "feature/some-fix" (assuming that was the first result)
+```
+
 ### Git Aliases - Configuration
 
 Add the following aliases to your `.gitconfig` file to use `git-ninja` commands as Git aliases:
@@ -101,6 +109,8 @@ Search branch names:
 git sb fix
 # find branches matching a regex pattern
 git sb -r "fix.+"
+# find branches containing "fix" and check out the first result
+git sb fix -o
 ```
 
 Switch to the last checked out branch:
