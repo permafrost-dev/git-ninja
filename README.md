@@ -11,6 +11,14 @@
 A powerful command-line tool designed to enhance your Git workflow with advanced commands tailored for developers. 
 It simplifies complex Git operations, making branch management and navigation more efficient and intuitive.
 
+## Screenshots
+
+Recently used branches:
+![image](https://github.com/user-attachments/assets/31142cc5-1f1c-4f07-bc9c-2b50f6701b43)
+
+Frequently used branches:
+![image](https://github.com/user-attachments/assets/8f3ddea1-24c4-41cc-93db-1f3e938b5dec)
+
 ## Available Commands
 
 - `branch:current` - Work with the current branch
@@ -19,14 +27,6 @@ It simplifies complex Git operations, making branch management and navigation mo
 - `branch:last` - Work with the last checked out branch
 - `branch:recent` - List branches recently checked out
 - `branch:search` - Search branch names for a substring or regex match
-
-## Screenshots
-
-Recently used branches:
-![image](https://github.com/user-attachments/assets/31142cc5-1f1c-4f07-bc9c-2b50f6701b43)
-
-Frequently used branches:
-![image](https://github.com/user-attachments/assets/8f3ddea1-24c4-41cc-93db-1f3e938b5dec)
 
 ## Examples
 
