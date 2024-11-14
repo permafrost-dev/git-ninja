@@ -119,7 +119,7 @@ func init() {
 			displayedBranches := getGroupedAndSortedDisplayBranches(branchData, &thresholds, 15)
 
 			for _, branch := range displayedBranches {
-				infoStr := fmt.Sprintf("[%2.1f] %2d checkouts, %2d commits, %-15s", branch.Score, branch.CheckoutCount, branch.CommitCount, utils.GetRelativeTime(branch.CheckedOutLast))
+				infoStr := fmt.Sprintf("%2d checkouts, %2d commits, %-15s", branch.CheckoutCount, branch.CommitCount, utils.GetRelativeTime(branch.CheckedOutLast))
 				fmt.Printf("  \033[33m%28s \033[37;1m %s\033[0m\n", infoStr, branch.Name)
 			}
 		},
