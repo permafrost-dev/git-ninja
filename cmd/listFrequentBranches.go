@@ -113,14 +113,13 @@ func init() {
 		Run: func(c *cobra.Command, args []string) {
 			lines, _ := git.GetGitReflogLines("%at ~ %gs ~ %gd")
 			availableBranches, _ := helpers.GetAvailableBranchesMap()
-			branches := make(map[string]git.BranchInfo)
 
 			thresholds := FrequentBranchThresholds{
 				Recent: time.Now().AddDate(0, 0, -7),
 				Older:  time.Now().AddDate(0, 0, -15),
 			}
 
-			branches = processRefLogLines(lines, availableBranches)
+			branches := processRefLogLines(lines, availableBranches)
 			frequent := getGroupedAndSortedDisplayBranches(branches, &thresholds, 15)
 
 			for _, br := range frequent {
