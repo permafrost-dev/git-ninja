@@ -2,31 +2,25 @@
 
 ---
 
+<!-- [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) -->
+![MIT License](https://img.shields.io/badge/oss_license-MIT-blue?style=flat-square&logo=opensourceinitiative&logoColor=white)
+![GitHub Release](https://img.shields.io/github/v/release/permafrost-dev/git-ninja?include_prereleases&sort=semver&display_name=tag&style=flat-square&logo=github&color=F9DC3E)
+![GitHub Release Date](https://img.shields.io/github/release-date/permafrost-dev/git-ninja?display_date=published_at&style=flat-square&logo=github)
+![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/permafrost-dev/git-ninja?style=flat-square&logo=codeclimate)
+
 A powerful command-line tool designed to enhance your Git workflow with advanced commands tailored for developers. 
 It simplifies complex Git operations, making branch management and navigation more efficient and intuitive.
 
-## Usage
+## Available Commands
 
-```bash
-git-ninja [command] [flags] [args]
-```
-
-### Available Commands
-
-- `branch:current` - Work with the current branch or return the current branch name
-- `branch:exists` - Check if the given branch name exists
-- `branch:recent` - Show recently checked out branches
-- `branch:freq` - Show frequently checked out branches
+- `branch:current` - Work with the current branch
+- `branch:exists` - Check if the specified branch name exists
+- `branch:freq` - List branches frequently checked out
 - `branch:last` - Work with the last checked out branch
-- `branch:search` - Search branch names for matching substrings or a regex pattern
+- `branch:recent` - List branches recently checked out
+- `branch:search` - Search branch names for a substring or regex match
 
-### Examples
-
-Check if a branch exists:
-
-```bash
-git-ninja branch:exists feature/new-ui
-```
+## Examples
 
 List recently checked out branches:
 
