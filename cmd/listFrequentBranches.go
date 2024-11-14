@@ -74,53 +74,58 @@ type FrequentBranchThresholds struct {
 	Older  time.Time
 }
 
+func processRefLogLines(lines []string, existingBranches map[string]bool) map[string]git.BranchInfo {
+	branches := make(map[string]git.BranchInfo)
+
+	for _, line := range lines {
+		info := git.GetBranchInfoFromReflogLine(lineRegex, line, 4)
+		if info == nil || !utils.MapEntryExists(info.BranchName, existingBranches) {
+			continue
+		}
+
+		data := git.BranchInfo{Name: info.BranchName, CheckoutCount: 0, CheckedOutLast: time.Time{}}
+
+		if _, ok := branches[info.BranchName]; ok {
+			data = branches[info.BranchName]
+		}
+
+		data.CheckoutCount++
+
+		if data.CheckedOutLast.IsZero() || info.Timestamp.After(data.CheckedOutLast) {
+			data.CheckedOutLast = info.Timestamp
+		}
+
+		branches[info.BranchName] = data
+	}
+
+	for name, branch := range branches {
+		branch.Update()
+		branches[name] = branch
+	}
+
+	return branches
+}
+
 func init() {
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "branch:freq",
 		Short: "Show recently checked out branch names",
 		Run: func(c *cobra.Command, args []string) {
 			lines, _ := git.GetGitReflogLines("%at ~ %gs ~ %gd")
-			existingBranches, _ := helpers.GetAvailableBranchesMap()
-			branchData := make(map[string]git.BranchInfo)
+			availableBranches, _ := helpers.GetAvailableBranchesMap()
+			branches := make(map[string]git.BranchInfo)
 
 			thresholds := FrequentBranchThresholds{
 				Recent: time.Now().AddDate(0, 0, -7),
 				Older:  time.Now().AddDate(0, 0, -15),
 			}
 
-			for _, line := range lines {
-				data := git.BranchInfo{Name: "", CheckoutCount: 0, CheckedOutLast: time.Time{}}
-				info := git.GetBranchInfoFromReflogLine(lineRegex, line, 4)
-				if info == nil || !utils.MapEntryExists(info.BranchName, existingBranches) {
-					continue
-				}
+			branches = processRefLogLines(lines, availableBranches)
+			frequent := getGroupedAndSortedDisplayBranches(branches, &thresholds, 15)
 
-				if _, ok := branchData[info.BranchName]; ok {
-					data = branchData[info.BranchName]
-				} else {
-					data.Name = info.BranchName
-				}
-
-				data.CheckoutCount++
-				data.CheckoutHistory = append(data.CheckoutHistory, info)
-
-				if data.CheckedOutLast.IsZero() || info.Timestamp.After(data.CheckedOutLast) {
-					data.CheckedOutLast = info.Timestamp
-				}
-
-				branchData[info.BranchName] = data
-			}
-
-			for name, branch := range branchData {
-				branch.Update()
-				branchData[name] = branch
-			}
-
-			displayedBranches := getGroupedAndSortedDisplayBranches(branchData, &thresholds, 15)
-
-			for _, branch := range displayedBranches {
-				infoStr := fmt.Sprintf("%2d checkouts, %2d commits, %-15s", branch.CheckoutCount, branch.CommitCount, utils.GetRelativeTime(branch.CheckedOutLast))
-				fmt.Printf("  \033[33m%28s \033[37;1m %s\033[0m\n", infoStr, branch.Name)
+			for _, br := range frequent {
+				description := fmt.Sprintf("%2d checkouts, %2d commits, %-15s", br.CheckoutCount, br.CommitCount, utils.GetRelativeTime(br.CheckedOutLast))
+				fmt.Printf("  \033[33m%28s \033[37;1m %s\033[0m\n", description, br.Name)
 			}
 		},
 	})
