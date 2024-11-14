@@ -19,10 +19,11 @@ func init() {
 			}
 
 			if exists, _ := helpers.BranchExists(args[0]); !exists {
+				fmt.Println("0")
 				os.Exit(1)
 			}
 
-			os.Exit(0)
+			fmt.Println("1")
 		},
 	})
 }
