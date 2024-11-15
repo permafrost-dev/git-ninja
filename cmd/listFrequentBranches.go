@@ -109,7 +109,7 @@ func processRefLogLines(lines []string, existingBranches map[string]bool) map[st
 func init() {
 	rootCmd.AddCommand(&cobra.Command{
 		Use:   "branch:freq",
-		Short: "Show recently checked out branch names",
+		Short: "Show frequently active branches",
 		Run: func(c *cobra.Command, args []string) {
 			lines, _ := git.GetGitReflogLines("%at ~ %gs ~ %gd")
 			availableBranches, _ := helpers.GetAvailableBranchesMap()
