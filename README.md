@@ -27,8 +27,16 @@ Frequently used branches:
 - `branch:last` - Work with the last checked out branch
 - `branch:recent` - List branches recently checked out
 - `branch:search` - Search branch names for a substring or regex match
+- `checkout` - Check out a branch
 
 ## Examples
+
+Check out, then `git pull` the `main` branch:
+
+```bash
+git-ninja checkout main --pull
+git-ninja co main -p
+```
 
 List recently checked out branches:
 
@@ -84,10 +92,11 @@ Add the following aliases to your `.gitconfig` file to use `git-ninja` commands 
 
 ```ini
 [alias]
+    co = "!f() { git-ninja checkout $@; }; f"
     # list recently checked out branches
-    lrb = "!f() { git-ninja branch:recent; }; f"
+    lrb = "!f() { git-ninja branch:recent $@; }; f"
     # list frequently checked out branches
-    lfb = "!f() { git-ninja branch:freq; }; f"
+    lfb = "!f() { git-ninja branch:freq $@; }; f"
     # search branches
     sb = "!f() { git-ninja branch:search $@; }; f"
     # push current branch
