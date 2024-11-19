@@ -122,6 +122,8 @@ git sb fix
 git sb -r "fix.+"
 # find branches containing "fix" and check out the first result
 git sb fix -o
+# or checkout a branch by ticket number:
+git sb -o 1123 # checks out 'GN-1123-my-feature-branch'
 ```
 
 Switch to the last checked out branch:
