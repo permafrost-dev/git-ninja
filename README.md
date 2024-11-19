@@ -132,6 +132,20 @@ git checkout feature/my-feature
 git co-last # switch from feature/my-feature to main
 ```
 
+## JIRA Integration
+
+The `branch:recent` command can be run with the `--jira` flag to slightly modify the ordering of the results based on open issues in JIRA. Assuming your branches contain
+the JIRA issue key in the branch name, the command will rank branches with open issues that have been updated recently slightly higher in the list.
+
+Tickets with a higher numerical suffix and have been recently updated are ranked slightly higher in the list, 
+while tickets that have not been updated recently are ranked lower.
+
+```bash
+git-ninja branch:recent --jira
+```
+
+To enable the JIRA integration, set the `JIRA_API_TOKEN`, `JIRA_SUBDOMAIN` and `JIRA_EMAIL_ADDRESS` environment variables.
+
 ## Development Setup
 
 ```bash
