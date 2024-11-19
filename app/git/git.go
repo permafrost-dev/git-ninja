@@ -10,6 +10,7 @@ import (
 )
 
 type BranchInfo struct {
+	Rank            int64
 	Name            string
 	CheckoutCount   int
 	CommitCount     int
