@@ -135,18 +135,31 @@ git co-last # switch from feature/my-feature to main
 ```
 
 ## JIRA Integration
+The `branch:recent` command can be run with the `--jira` flag to refine the ordering of the results using live data from JIRA. When your branch names include a JIRA issue key, branches tied to active issues you've updated recently appear closer to the top.
 
-The `branch:recent` command can be run with the `--jira` flag to slightly modify the ordering of the results based on open issues in JIRA. Assuming your branches contain
-the JIRA issue key in the branch name, the command will rank branches with open issues that have been updated recently slightly higher in the list.
+### Configuration
 
-Tickets with a higher numerical suffix and have been recently updated are ranked slightly higher in the list, 
-while tickets that have not been updated recently are ranked lower.
+1. **Create an API token**
+   - Visit <https://id.atlassian.com/manage-profile/security/api-tokens>.
+   - Click **Create API token** and copy the generated value.
 
-```bash
-git-ninja branch:recent --jira
-```
+2. **Export the required environment variables**
 
-To enable the JIRA integration, set the `JIRA_API_TOKEN`, `JIRA_SUBDOMAIN` and `JIRA_EMAIL_ADDRESS` environment variables.
+   ```bash
+   export JIRA_API_TOKEN="your-token"
+   export JIRA_SUBDOMAIN="acme"        # for https://acme.atlassian.net
+   export JIRA_EMAIL_ADDRESS="you@example.com"
+   ```
+
+   Add these to your shell profile or `.env` file so `git-ninja` can authenticate with JIRA.
+
+3. **Run `branch:recent` with the `--jira` flag**
+
+   ```bash
+   git-ninja branch:recent --jira
+   ```
+
+Results are cached for five minutes to avoid repeated API calls. Tickets with higher numbers that have been updated recently are ranked above older or inactive issues.
 
 ## Development Setup
 
