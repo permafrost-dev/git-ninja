@@ -143,11 +143,11 @@ The `branch:recent` command can be run with the `--jira` flag to refine the orde
    - Visit <https://id.atlassian.com/manage-profile/security/api-tokens>.
    - Click **Create API token** and copy the generated value.
 
-2. **Export the required environment variables**
-
-   ```bash
+   # Recommended: Use a secure credential manager or encrypted .env file
+   # Store these credentials in an encrypted .env file, not in your shell profile
    export JIRA_API_TOKEN="your-token"
-   export JIRA_SUBDOMAIN="acme"        # for https://acme.atlassian.net
+   export JIRA_SUBDOMAIN="acme"        # for 
+   export JIRA_EMAIL_ADDRESS="you@example.com"
    export JIRA_EMAIL_ADDRESS="you@example.com"
    ```
 
