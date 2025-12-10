@@ -160,7 +160,9 @@ The `branch:recent` command can be run with the `--jira` flag to refine the orde
    git-ninja branch:recent --jira
    ```
 
-Results are cached for five minutes to avoid repeated API calls. Tickets with higher numbers that have been updated recently are ranked above older or inactive issues.
+Results are cached for 5 minutes to avoid repeated API calls.
+Recently updated issues rank higher; inactive ones rank lower.
+If cache TTL is configurable, document the flag or env var here.
 
 ## Development Setup
 
