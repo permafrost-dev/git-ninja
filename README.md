@@ -140,19 +140,20 @@ The `branch:recent` command can be run with the `--jira` flag to refine the orde
 ### Configuration
 
 1. **Create an API token**
-   - Visit <https://id.atlassian.com/manage-profile/security/api-tokens>.
+   - Visit [Atlassian API Tokens](https://id.atlassian.com/manage-profile/security/api-tokens).
    - Click **Create API token** and copy the generated value.
 
-```bash
-   # Recommended: Use a secure credential manager or encrypted .env file
-   # Store these credentials in an encrypted .env file, not in your shell profile
-   export JIRA_API_TOKEN="your-token"
-   export JIRA_SUBDOMAIN="acme"        # for 
-   export JIRA_EMAIL_ADDRESS="you@example.com"
-   export JIRA_EMAIL_ADDRESS="you@example.com"
-```
+2. **Configure credentials**
 
-   Add these to your shell profile or `.env` file so `git-ninja` can authenticate with JIRA.
+   Create a `.env` file in your project root:
+
+   ```env
+   JIRA_API_TOKEN=your-token
+   JIRA_SUBDOMAIN=acme
+   JIRA_EMAIL_ADDRESS=you@example.com
+   ```
+
+   **Important:** Do not commit `.env` to version control. Add it to `.gitignore` to keep your credentials secure.
 
 3. **Run `branch:recent` with the `--jira` flag**
 
