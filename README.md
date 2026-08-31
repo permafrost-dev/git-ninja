@@ -29,6 +29,64 @@ Frequently used branches:
 - `branch:search` - Search branch names for a substring or regex match
 - `checkout` - Check out a branch
 
+## Usage Examples
+
+### `branch:current`
+
+Work with the current branch:
+
+```bash
+git-ninja branch:current
+```
+
+### `branch:exists`
+
+Check if the specified branch name exists:
+
+```bash
+git-ninja branch:exists feature/my-feature
+```
+
+### `branch:freq`
+
+List branches frequently checked out:
+
+```bash
+git-ninja branch:freq
+```
+
+### `branch:last`
+
+Work with the last checked out branch:
+
+```bash
+git-ninja branch:last
+```
+
+### `branch:recent`
+
+List branches recently checked out:
+
+```bash
+git-ninja branch:recent
+```
+
+### `branch:search`
+
+Search branch names for a substring or regex match:
+
+```bash
+git-ninja branch:search fix
+```
+
+### `checkout`
+
+Check out a branch:
+
+```bash
+git-ninja checkout main
+```
+
 ## Examples
 
 Check out, then `git pull` the `main` branch:
